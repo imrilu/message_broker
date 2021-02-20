@@ -83,19 +83,12 @@ def publish(msg, topic):
 
 
 def listen(id):
-    try:
-        cursor.execute("BEGIN")
-        result = cursor.execute("""SELECT message FROM messages WHERE client_id = ?;""", (id,))
-        messages = result.fetchall()
-        if messages:
-            cursor.execute("""DELETE FROM messages WHERE client_id = ?;""", (id,))
-            cursor.execute("COMMIT")
-            return [m[0] for m in messages]
-        else:
-            cursor.execute("COMMIT")
-    except:
-        cursor.execute("ROLLBACK")
-        raise Exception("listen: error in SQL statement")
+    result = cursor.execute("""SELECT message FROM messages WHERE client_id = ?;""", (id,))
+    messages = result.fetchall()
+    if messages:
+        cursor.execute("""DELETE FROM messages WHERE client_id = ?;""", (id,))
+        connection.commit()
+        return [m[0] for m in messages]
 
 
 def remove_sub(sub, lst):
